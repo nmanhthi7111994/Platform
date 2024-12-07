@@ -1,3 +1,4 @@
+#Docker
 An example command to create a Docker container is −
 
 ```
@@ -69,5 +70,27 @@ docker image inspect myimage:latest
 docker rmi $(docker image ls -q)
 ```
 
-
-
+#Podmand 
+## List Running Containers
+```
+podman ps
+```
+## Inspect Container Configuration
+```
+podman inspect <container-id>
+```
+## Search for Sensitive Mounts
+```
+podman inspect <container-id> | jq '.Mounts[] | select(.Source == "/etc" or .Source == "/var" or .Source == "/")'
+```
+## Check for All Containers
+```
+for id in $(podman ps -q); do
+    echo "Inspecting container $id..."
+    podman inspect $id | jq '.Mounts[] | select(.Source == "/etc" or .Source == "/var" or .Source == "/")'
+done
+```
+## Review Container Start Commands
+```
+podman ps --no-trunc
+```
