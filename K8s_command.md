@@ -54,8 +54,10 @@ done
 ```
 
 **Check the version of specific software in pod**
+*** This should be run by root***
 ```
-/bin/bash /tmp/k8s_enum_apache_pod.sh
+wget http://172.29.186.78:9998/k8s_enum_software_pod.sh
+/bin/bash /tmp/k8s_enum_software_pod.sh
 ```
 ```
 #!/bin/bash
