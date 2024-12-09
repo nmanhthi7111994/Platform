@@ -52,3 +52,39 @@ for pod in $(kubectl get pods -o jsonpath='{.items[*].metadata.name}'); do
   kubectl exec -it $pod -- find / -name <file-name> 2>/dev/null
 done
 ```
+
+**Check the version of specific software in pod**
+```
+/bin/bash /tmp/k8s_enum_apache_pod.sh
+```
+```
+#!/bin/bash
+
+# Get all pods in the current namespace
+pods=$(kubectl get pods -o jsonpath='{.items[*].metadata.name}')
+
+# Header for the output
+echo -e "Pod Name\t| Apache Version\t| OpenSSL Version\t| mod_auth_gssapi Version\t| mod_wsgi Version\t| Python Version"
+
+# Iterate through each pod
+for pod in $pods; do
+  # Check Apache version
+  apache_version=$(kubectl exec -it $pod -- sh -c "apache2 -v 2>/dev/null || httpd -v 2>/dev/null" | grep -oP 'Apache/\d+\.\d+\.\d+' || echo "Not installed")
+
+  # Check OpenSSL version
+  openssl_version=$(kubectl exec -it $pod -- sh -c "openssl version 2>/dev/null" || echo "Not installed")
+
+  # Check mod_auth_gssapi version
+  mod_auth_gssapi_version=$(kubectl exec -it $pod -- sh -c "apache2ctl -M 2>/dev/null || httpd -M 2>/dev/null" | grep -oP 'mod_auth_gssapi/\d+\.\d+\.\d+' || echo "Not detected")
+
+  # Check mod_wsgi version
+  mod_wsgi_version=$(kubectl exec -it $pod -- sh -c "apache2ctl -M 2>/dev/null || httpd -M 2>/dev/null" | grep -oP 'mod_wsgi/\d+\.\d+\.\d+' || echo "Not detected")
+
+  # Check Python version
+  python_version=$(kubectl exec -it $pod -- sh -c "python3 --version 2>/dev/null || python --version 2>/dev/null" | grep -oP 'Python \d+\.\d+\.\d+' || echo "Not installed")
+
+  # Output the versions
+  echo -e "$pod\t| $apache_version\t| $openssl_version\t| $mod_auth_gssapi_version\t| $mod_wsgi_version\t| $python_version"
+done
+
+```
